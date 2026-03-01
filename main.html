@@ -1,16 +1,95 @@
 <!DOCTYPE html>
-
-<html>
-
+<html lang="en">
 <head>
-	<link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Form</title>
 </head>
-
 <body>
-	<!-- the entire body must be written by student -->
-    <script type="text/javascript" src="./script.js">
+
+<h1>Login Form</h1>
+
+<form id="loginForm">
+  Username:<br>
+  <input type="text" id="username" placeholder="Username" required><br><br>
+  
+  Password:<br>
+  <input type="password" id="password" placeholder="Password" required><br><br>
+  
+  <input type="checkbox" id="checkbox">
+  <label for="checkbox">Remember me.</label><br><br>
+  
+  <button type="submit" id="submit">Submit</button>
+</form>
+
+<button id="existing" style="display:none;">Login as existing user</button>
+
+<script>
+  const form     = document.getElementById('loginForm');
+  const user     = document.getElementById('username');
+  const pass     = document.getElementById('password');
+  const check    = document.getElementById('checkbox');
+  const existing = document.getElementById('existing');
+
+  const KEY = 'rememberMeCredentials';
+
+  // Show/hide existing user button
+  function updateExistingButton() {
+    existing.style.display = localStorage.getItem(KEY) ? 'block' : 'none';
+  }
+
+  // Load saved credentials if they exist
+  const saved = localStorage.getItem(KEY);
+  if (saved) {
+    try {
+      const data = JSON.parse(saved);
+      user.value = data.username || '';
+      pass.value = data.password || '';
+    } catch {
+      localStorage.removeItem(KEY);
+    }
+    updateExistingButton();
+  }
+
+  // Handle form submission
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const username = user.value.trim();
+    if (!username) {
+      alert('Please enter a username');
+      return;
+    }
+
+    alert(`Logged in as ${username}`);
+
+    if (check.checked) {
+      localStorage.setItem(KEY, JSON.stringify({
+        username: username,
+        password: pass.value
+      }));
+    } else {
+      localStorage.removeItem(KEY);
+    }
+
+    updateExistingButton();
+  });
+
+  // Login as existing user
+  existing.addEventListener('click', () => {
+    const data = localStorage.getItem(KEY);
+    if (data) {
+      try {
+        const { username } = JSON.parse(data);
+        if (username) {
+          alert(`Logged in as ${username}`);
+        }
+      } catch {
+        localStorage.removeItem(KEY);
+        updateExistingButton();
+      }
+    }
+  });
 </script>
 
 </body>
-
 </html>
