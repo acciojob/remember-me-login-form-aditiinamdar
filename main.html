@@ -4,91 +4,111 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login Form</title>
+  <style>
+    .form-group { margin-bottom: 1.2rem; }
+    label { display: block; margin-bottom: 0.3rem; font-weight: 500; }
+    input[type="text"], input[type="password"] {
+      width: 100%; max-width: 320px; padding: 0.5rem;
+    }
+  </style>
 </head>
 <body>
 
 <h1>Login Form</h1>
 
 <form id="loginForm">
-  Username:<br>
-  <input type="text" id="username" placeholder="Username" required><br><br>
-  
-  Password:<br>
-  <input type="password" id="password" placeholder="Password" required><br><br>
-  
-  <input type="checkbox" id="checkbox">
-  <label for="checkbox">Remember me.</label><br><br>
-  
-  <button type="submit" id="submit">Submit</button>
+  <div class="form-group">
+    <label for="username">Username</label>
+    <input type="text" id="username" placeholder="Username" required>
+  </div>
+
+  <div class="form-group">
+    <label for="password">Password</label>
+    <input type="password" id="password" placeholder="Password" required>
+  </div>
+
+  <div class="form-group">
+    <input type="checkbox" id="remember" name="remember">
+    <label for="remember">Remember me</label>
+  </div>
+
+  <button type="submit" id="submit">Login</button>
 </form>
 
-<button id="existing" style="display:none;">Login as existing user</button>
+<button id="existing" style="display:none; margin-top: 1rem;">
+  Login as existing user
+</button>
 
 <script>
-  const form     = document.getElementById('loginForm');
-  const user     = document.getElementById('username');
-  const pass     = document.getElementById('password');
-  const check    = document.getElementById('checkbox');
-  const existing = document.getElementById('existing');
+// ────────────────────────────────────────────────
+const form     = document.getElementById('loginForm');
+const user     = document.getElementById('username');
+const pass     = document.getElementById('password');
+const remember = document.getElementById('remember');
+const existing = document.getElementById('existing');
 
-  const KEY = 'rememberMeCredentials';
+const KEY = 'rememberMeCredentials';
 
-  // Show/hide existing user button
-  function updateExistingButton() {
-    existing.style.display = localStorage.getItem(KEY) ? 'block' : 'none';
-  }
+function updateExistingButton() {
+  existing.style.display = localStorage.getItem(KEY) ? 'block' : 'none';
+}
 
-  // Load saved credentials if they exist
+function loadSavedCredentials() {
   const saved = localStorage.getItem(KEY);
-  if (saved) {
-    try {
-      const data = JSON.parse(saved);
-      user.value = data.username || '';
-      pass.value = data.password || '';
-    } catch {
-      localStorage.removeItem(KEY);
-    }
-    updateExistingButton();
+  if (!saved) return;
+
+  try {
+    const data = JSON.parse(saved);
+    user.value = data.username || '';
+    pass.value = data.password || '';
+    remember.checked = !!data.username; // optional: check the box if credentials exist
+  } catch {
+    localStorage.removeItem(KEY);
+  }
+  updateExistingButton();
+}
+
+loadSavedCredentials(); // run on page load
+
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  
+  const username = user.value.trim();
+  if (!username) {
+    alert('Please enter a username');
+    return;
   }
 
-  // Handle form submission
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-    const username = user.value.trim();
-    if (!username) {
-      alert('Please enter a username');
-      return;
+  alert(`Logged in as ${username}`);
+
+  if (remember.checked) {
+    localStorage.setItem(KEY, JSON.stringify({
+      username,
+      password: pass.value
+    }));
+  } else {
+    localStorage.removeItem(KEY);
+  }
+
+  updateExistingButton();
+});
+
+existing.addEventListener('click', () => {
+  const data = localStorage.getItem(KEY);
+  if (!data) return;
+
+  try {
+    const { username } = JSON.parse(data);
+    if (username) {
+      alert(`Logged in as ${username}`);
+      // Optional: you could also auto-fill and submit the form here
     }
-
-    alert(`Logged in as ${username}`);
-
-    if (check.checked) {
-      localStorage.setItem(KEY, JSON.stringify({
-        username: username,
-        password: pass.value
-      }));
-    } else {
-      localStorage.removeItem(KEY);
-    }
-
+  } catch {
+    localStorage.removeItem(KEY);
     updateExistingButton();
-  });
-
-  // Login as existing user
-  existing.addEventListener('click', () => {
-    const data = localStorage.getItem(KEY);
-    if (data) {
-      try {
-        const { username } = JSON.parse(data);
-        if (username) {
-          alert(`Logged in as ${username}`);
-        }
-      } catch {
-        localStorage.removeItem(KEY);
-        updateExistingButton();
-      }
-    }
-  });
+  }
+});
+// ────────────────────────────────────────────────
 </script>
 
 </body>
