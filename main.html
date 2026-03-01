@@ -5,10 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login Form</title>
   <style>
+    body { font-family: sans-serif; max-width: 400px; margin: 2rem auto; padding: 0 1rem; }
     .form-group { margin-bottom: 1.2rem; }
-    label { display: block; margin-bottom: 0.3rem; font-weight: 500; }
-    input[type="text"], input[type="password"] {
-      width: 100%; max-width: 320px; padding: 0.5rem;
+    label { display: block; margin-bottom: 0.35rem; font-weight: 500; }
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 0.5rem;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 0.6rem 1.2rem;
+      background: #0066cc;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -35,12 +47,11 @@
   <button type="submit" id="submit">Login</button>
 </form>
 
-<button id="existing" style="display:none; margin-top: 1rem;">
+<button id="existing" style="display:none; margin-top: 1.5rem;">
   Login as existing user
 </button>
 
 <script>
-// ────────────────────────────────────────────────
 const form     = document.getElementById('loginForm');
 const user     = document.getElementById('username');
 const pass     = document.getElementById('password');
@@ -53,32 +64,28 @@ function updateExistingButton() {
   existing.style.display = localStorage.getItem(KEY) ? 'block' : 'none';
 }
 
-function loadSavedCredentials() {
+function loadSaved() {
   const saved = localStorage.getItem(KEY);
   if (!saved) return;
-
   try {
     const data = JSON.parse(saved);
     user.value = data.username || '';
     pass.value = data.password || '';
-    remember.checked = !!data.username; // optional: check the box if credentials exist
   } catch {
     localStorage.removeItem(KEY);
   }
   updateExistingButton();
 }
 
-loadSavedCredentials(); // run on page load
+loadSaved();
 
 form.addEventListener('submit', e => {
   e.preventDefault();
-  
   const username = user.value.trim();
   if (!username) {
     alert('Please enter a username');
     return;
   }
-
   alert(`Logged in as ${username}`);
 
   if (remember.checked) {
@@ -89,26 +96,20 @@ form.addEventListener('submit', e => {
   } else {
     localStorage.removeItem(KEY);
   }
-
   updateExistingButton();
 });
 
 existing.addEventListener('click', () => {
   const data = localStorage.getItem(KEY);
   if (!data) return;
-
   try {
     const { username } = JSON.parse(data);
-    if (username) {
-      alert(`Logged in as ${username}`);
-      // Optional: you could also auto-fill and submit the form here
-    }
+    if (username) alert(`Logged in as ${username}`);
   } catch {
     localStorage.removeItem(KEY);
     updateExistingButton();
   }
 });
-// ────────────────────────────────────────────────
 </script>
 
 </body>
